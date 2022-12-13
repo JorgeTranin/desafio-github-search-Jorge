@@ -21,13 +21,16 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:autofillHints=""
         android:ems="10"
         android:hint="@string/nome_usuario"
-        android:inputType="numberDecimal"
+        android:inputType="none"
         android:maxLength="10"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_titulo" />
+        app:layout_constraintTop_toBottomOf="@id/tv_titulo"
+        tools:ignore="TextContrastCheck" />
 
     <Button
         android:id="@+id/btn_confirmar"
