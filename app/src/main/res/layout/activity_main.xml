@@ -24,7 +24,7 @@
         android:autofillHints=""
         android:ems="10"
         android:hint="@string/nome_usuario"
-        android:inputType="none"
+        android:inputType="text"
         android:maxLength="10"
         android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
