@@ -5,11 +5,18 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.data.GitHubService
 import br.com.igorbag.githubsearch.domain.Repository
+import br.com.igorbag.githubsearch.ui.adapter.RepositoryAdapter
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
     lateinit var nomeUsuario: EditText
@@ -25,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         setupView()
         showUserName()
         setupRetrofit()
-        getAllReposByUserName()
+
         setupListeners()
 
     }
@@ -44,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         btnConfirmar.setOnClickListener {
             setupView()
             saveUserLocal(nomeUsuario.text.toString())
+            getAllReposByUserName()
 
         }
     }
@@ -84,18 +92,53 @@ class MainActivity : AppCompatActivity() {
 
     //Metodo responsavel por fazer a configuracao base do Retrofit
     fun setupRetrofit() {
+
         /*
            @TODO 5 -  realizar a Configuracao base do retrofit
            Documentacao oficial do retrofit - https://square.github.io/retrofit/
            URL_BASE da API do  GitHub= https://api.github.com/
            lembre-se de utilizar o GsonConverterFactory mostrado no curso
         */
+        val retrofit = Retrofit.Builder().baseUrl("https://api.github.com/")
+            .addConverterFactory(GsonConverterFactory.create()).build()
+
+        githubApi = retrofit.create(GitHubService::class.java)
+
     }
 
 
     //Metodo responsavel por buscar todos os repositorios do usuario fornecido
     fun getAllReposByUserName() {
         // TODO 6 - realizar a implementacao do callback do retrofit e chamar o metodo setupAdapter se retornar os dados com sucesso
+        githubApi.getAllRepositoriesByUser(nomeUsuario.text.toString())
+            .enqueue(object : Callback<List<Repository>> {
+                override fun onResponse(
+                    call: Call<List<Repository>>,
+                    response: Response<List<Repository>>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let {
+                            setupAdapter(it)
+                        }
+
+                    } else {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Algo deu errado tente mais tarde",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Repository>>, t: Throwable) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Algo deu errado tente mais tarde",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+            })
     }
 
     // Metodo responsavel por realizar a configuracao do adapter
@@ -104,6 +147,11 @@ class MainActivity : AppCompatActivity() {
             @TODO 7 - Implementar a configuracao do Adapter , construir o adapter e instancia-lo
             passando a listagem dos repositorios
          */
+        val repositoryAdapter = RepositoryAdapter(list)
+        repositoryAdapter.carItemLister = { carro -> openBrowser(carro.htmlUrl) }
+        repositoryAdapter.btnShareLister = { carro -> shareRepositoryLink(carro.htmlUrl) }
+        listaRepositories.adapter = repositoryAdapter
+
     }
 
 
