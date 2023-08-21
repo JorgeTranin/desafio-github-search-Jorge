@@ -3,4 +3,6 @@
     <string name="nome_usuario">Nome do usuário</string>
     <string name="confirmar">Confirmar</string>
     <string name="saved_calc">nome</string>
+    <string name="bot_o_para_compartilhar_repositorio">Botão para compartilhar repositorio</string>
+    <string name="pesquise_um_usuario">Pesquise um Usuário</string>
 </resources>
