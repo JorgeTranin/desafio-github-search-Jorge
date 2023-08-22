@@ -3,15 +3,16 @@ package br.com.igorbag.githubsearch.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.data.GitHubService
 import br.com.igorbag.githubsearch.domain.Repository
 import br.com.igorbag.githubsearch.ui.adapter.RepositoryAdapter
+import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,7 +24,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var btnConfirmar: Button
     lateinit var listaRepositories: RecyclerView
     lateinit var githubApi: GitHubService
-    val MY_SHARED_PREF_NAME = "my_shared_pref"
     val name = "name"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity() {
         setupView()
         showUserName()
         setupRetrofit()
-
         setupListeners()
 
     }
@@ -52,7 +51,6 @@ class MainActivity : AppCompatActivity() {
         btnConfirmar.setOnClickListener {
             saveUserLocal(nomeUsuario.text.toString())
             getAllReposByUserName()
-
         }
     }
 
@@ -60,12 +58,15 @@ class MainActivity : AppCompatActivity() {
     // salvar o usuario preenchido no EditText utilizando uma SharedPreferences
     private fun saveUserLocal(nome: String) {
         //@TODO 3 - Persistir o usuario preenchido na editText com a SharedPref no listener do botao salvar
-        val sharedPreferences = getPreferences(MODE_PRIVATE) ?: return
-        with(sharedPreferences.edit()) {
-            putString("nome", nome)
-            apply()
-        }
 
+        if (nome.isNotEmpty()) {
+            val sharedPreferences = getPreferences(MODE_PRIVATE) ?: return
+            with(sharedPreferences.edit()) {
+                putString("nome", nome)
+                apply()
+            }
+        } else {
+        }
     }
 
 
@@ -109,37 +110,53 @@ class MainActivity : AppCompatActivity() {
 
     //Metodo responsavel por buscar todos os repositorios do usuario fornecido
     fun getAllReposByUserName() {
-        // TODO 6 - realizar a implementacao do callback do retrofit e chamar o metodo setupAdapter se retornar os dados com sucesso
-        githubApi.getAllRepositoriesByUser(nomeUsuario.text.toString())
-            .enqueue(object : Callback<List<Repository>> {
-                override fun onResponse(
-                    call: Call<List<Repository>>,
-                    response: Response<List<Repository>>
-                ) {
-                    if (response.isSuccessful) {
-                        response.body()?.let {
-                            setupAdapter(it)
+        val textoDoCampo = nomeUsuario.text.toString()
+        if (textoDoCampo.isEmpty()) {
+            githubApi.getAllRepositoriesByUser(getSharedPreferences())
+                .enqueue(object : Callback<List<Repository>> {
+                    override fun onResponse(
+                        call: Call<List<Repository>>,
+                        response: Response<List<Repository>>
+                    ) {
+                        if (response.isSuccessful) {
+                            response.body()?.let {
+                                setupAdapter(it)
+                            } ?: showErrorSnackbar("A resposta do servidor estava vazia.")
+                        } else {
+                            showErrorSnackbar("Algo deu errado. Tente novamente mais tarde.")
                         }
-
-                    } else {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Algo deu errado tente mais tarde",
-                            Toast.LENGTH_LONG
-                        ).show()
                     }
-                }
 
-                override fun onFailure(call: Call<List<Repository>>, t: Throwable) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Algo deu errado tente mais tarde",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+                    override fun onFailure(call: Call<List<Repository>>, t: Throwable) {
+                        showErrorSnackbar("Erro na requisição. Verifique sua conexão.")
+                    }
+                })
+        }else{
+            val username = nomeUsuario.text.toString()
+            githubApi.getAllRepositoriesByUser(username)
+                .enqueue(object : Callback<List<Repository>> {
+                    override fun onResponse(
+                        call: Call<List<Repository>>,
+                        response: Response<List<Repository>>
+                    ) {
+                        if (response.isSuccessful) {
+                            response.body()?.let {
+                                setupAdapter(it)
+                            } ?: showErrorSnackbar("A resposta do servidor estava vazia.")
+                        } else {
+                            showErrorSnackbar("Algo deu errado. Tente novamente mais tarde.")
+                        }
+                    }
 
-            })
+                    override fun onFailure(call: Call<List<Repository>>, t: Throwable) {
+                        showErrorSnackbar("Erro na requisição. Verifique sua conexão.")
+                    }
+                })
+        }
+
+
     }
+
 
     // Metodo responsavel por realizar a configuracao do adapter
     fun setupAdapter(list: List<Repository>) {
@@ -181,5 +198,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun showErrorSnackbar(message: String) {
+        val rootView = findViewById<View>(android.R.id.content)
+        Snackbar.make(rootView, message, Snackbar.LENGTH_LONG).show()
+    }
 
 }
