@@ -57,7 +57,6 @@ class MainActivity : AppCompatActivity() {
 
     // salvar o usuario preenchido no EditText utilizando uma SharedPreferences
     private fun saveUserLocal(nome: String) {
-        //@TODO 3 - Persistir o usuario preenchido na editText com a SharedPref no listener do botao salvar
 
         if (nome.isNotEmpty()) {
             val sharedPreferences = getPreferences(MODE_PRIVATE) ?: return
@@ -85,7 +84,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun showUserName() {
-        //@TODO 4- depois de persistir o usuario exibir sempre as informacoes no EditText  se a sharedpref possuir algum valor, exibir no proprio editText o valor salvo
         setupCacheResult(nomeUsuario)
 
     }
@@ -93,12 +91,6 @@ class MainActivity : AppCompatActivity() {
     //Metodo responsavel por fazer a configuracao base do Retrofit
     fun setupRetrofit() {
 
-        /*
-           @TODO 5 -  realizar a Configuracao base do retrofit
-           Documentacao oficial do retrofit - https://square.github.io/retrofit/
-           URL_BASE da API do  GitHub= https://api.github.com/
-           lembre-se de utilizar o GsonConverterFactory mostrado no curso
-        */
         val retrofit = Retrofit.Builder().baseUrl("https://api.github.com/")
             .addConverterFactory(GsonConverterFactory.create()).build()
 
@@ -160,19 +152,17 @@ class MainActivity : AppCompatActivity() {
     // Metodo responsavel por realizar a configuracao do adapter
     fun setupAdapter(list: List<Repository>) {
         /*
-            @TODO 7 - Implementar a configuracao do Adapter , construir o adapter e instancia-lo
             passando a listagem dos repositorios
          */
         val repositoryAdapter = RepositoryListAdapter(list)
         repositoryAdapter.repositoryClickListener = { carro -> openBrowser(carro.htmlUrl) }
-        repositoryAdapter.repositoryClickListener = { carro -> shareRepositoryLink(carro.htmlUrl) }
+        repositoryAdapter.shareButtonClickListener = { carro -> shareRepositoryLink(carro.htmlUrl) }
         listaRepositories.adapter = repositoryAdapter
 
     }
 
 
     // Metodo responsavel por compartilhar o link do repositorio selecionado
-    // @Todo 11 - Colocar esse metodo no click do share item do adapter
     fun shareRepositoryLink(urlRepository: String) {
         val sendIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
@@ -186,7 +176,6 @@ class MainActivity : AppCompatActivity() {
 
     // Metodo responsavel por abrir o browser com o link informado do repositorio
 
-    // @Todo 12 - Colocar esse metodo no click item do adapter
     fun openBrowser(urlRepository: String) {
         startActivity(
             Intent(

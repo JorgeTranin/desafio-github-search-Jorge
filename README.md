@@ -50,4 +50,4 @@ Quem quiser fazer contribuições para o aplicativo! basta fazer as mudanças e 
 
 ## Autoria e Licença
 
-Este aplicativo foi desenvolvido por [Jorge Tranin] e é licenciado sob [MIT].
+Este aplicativo foi desenvolvido por [Jorge Tranin]
