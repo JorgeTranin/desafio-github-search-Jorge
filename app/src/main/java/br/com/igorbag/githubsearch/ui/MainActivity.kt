@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.data.GitHubService
 import br.com.igorbag.githubsearch.domain.Repository
-import br.com.igorbag.githubsearch.ui.adapter.RepositoryAdapter
+import br.com.igorbag.githubsearch.ui.adapter.RepositoryListAdapter
 import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
 import retrofit2.Callback
@@ -65,7 +65,6 @@ class MainActivity : AppCompatActivity() {
                 putString("nome", nome)
                 apply()
             }
-        } else {
         }
     }
 
@@ -164,9 +163,9 @@ class MainActivity : AppCompatActivity() {
             @TODO 7 - Implementar a configuracao do Adapter , construir o adapter e instancia-lo
             passando a listagem dos repositorios
          */
-        val repositoryAdapter = RepositoryAdapter(list)
-        repositoryAdapter.carItemLister = { carro -> openBrowser(carro.htmlUrl) }
-        repositoryAdapter.btnShareLister = { carro -> shareRepositoryLink(carro.htmlUrl) }
+        val repositoryAdapter = RepositoryListAdapter(list)
+        repositoryAdapter.repositoryClickListener = { carro -> openBrowser(carro.htmlUrl) }
+        repositoryAdapter.repositoryClickListener = { carro -> shareRepositoryLink(carro.htmlUrl) }
         listaRepositories.adapter = repositoryAdapter
 
     }

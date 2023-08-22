@@ -8,50 +8,43 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.domain.Repository
+class RepositoryListAdapter(private val repositories: List<Repository>) :
+    RecyclerView.Adapter<RepositoryListAdapter.ViewHolder>() {
 
-class RepositoryAdapter(private val repositories: List<Repository>) :
-    RecyclerView.Adapter<RepositoryAdapter.ViewHolder>() {
+    var repositoryClickListener: (Repository) -> Unit = {}
+    var shareButtonClickListener: (Repository) -> Unit = {}
 
-    var carItemLister: (Repository) -> Unit = {}
-    var btnShareLister: (Repository) -> Unit = {}
-
-    // Cria uma nova view
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.repository_item, parent, false)
         return ViewHolder(view)
     }
 
-    // Pega o conteudo da view e troca pela informacao de item de uma lista
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        //@TODO 8 -  Realizar o bind do viewHolder
-
         val repositoryItem = repositories[position]
-        holder.itemView.setOnClickListener {
-            carItemLister(repositoryItem)
-        }
-        holder.imageShare.setOnClickListener {
-            btnShareLister(repositoryItem)
-        }
-        holder.textRepositoryName.text = repositoryItem.name
+        holder.bind(repositoryItem)
     }
 
-    //@TODO 9 - realizar a contagem da lista
     override fun getItemCount(): Int = repositories.size
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        //@TODO 10 - Implementar o ViewHolder para os repositorios
-
-        val imageShare: ImageView
-        val textRepositoryName: TextView
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val imageShare: ImageView = view.findViewById(R.id.iv_favorite)
+        val textRepositoryName: TextView = view.findViewById(R.id.tv_preco)
 
         init {
-            view.apply {
-                imageShare = findViewById(R.id.iv_favorite)
-                textRepositoryName = findViewById(R.id.tv_preco)
+            view.setOnClickListener {
+                repositoryClickListener(repositories[adapterPosition])
             }
+            imageShare.setOnClickListener {
+                shareButtonClickListener(repositories[adapterPosition])
+            }
+        }
+
+        fun bind(repository: Repository) {
+            textRepositoryName.text = repository.name
         }
     }
 }
+
 
 
